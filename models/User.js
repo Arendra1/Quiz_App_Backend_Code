@@ -6,7 +6,7 @@ const userSchema = new mongoose.Schema({
     email : {type:String , required: true , trim: true},
     accessLevel : {type:String , required: true , trim: true},
     password : {type:String , required: true , trim: true},
-    tc : {type:Boolean , default:true }
+    score : {type:Number , default:0 }
 })
 
 // Model

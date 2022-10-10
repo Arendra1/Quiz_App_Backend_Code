@@ -2,7 +2,6 @@ import jwt from 'jsonwebtoken'
 import UserModel from '../models/User.js'
  
 const checkUserAuth = async (req , res , next)=>{
-    console.log('Something went wrong in checkuserauth');
     let token
     const { authorization } = req.headers
 
