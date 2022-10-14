@@ -15,6 +15,7 @@ router.post('/send-reset-password-email' , UserController.sendUserPasswordResetE
 router.post('/reset-password/:id/:token' , UserController.userPasswordReset) 
 router.get('/all-users' , UserController.getAllUsers) 
 router.post('/update' , UserController.updateUserInfo) 
+router.post('/updateProfile' , UserController.userProfileUpdate) 
 
 
 

@@ -6,8 +6,14 @@ import transporter from "../config/emailConfig.js";
 class UserController {
   static userRegistration = async (req, res) => {
     let score = 0;
-    const { name, email, accessLevel, password, password_confirmation } =
-      req.body;
+    const {
+      name,
+      email,
+      accessLevel,
+      domain,
+      password,
+      password_confirmation,
+    } = req.body;
 
     // what is coming in body
     console.log(req.body);
@@ -22,7 +28,14 @@ class UserController {
       console.log("Email already exists");
       res.send({ status: "failed", message: "Email already exists" });
     } else {
-      if (name && email && password && accessLevel && password_confirmation) {
+      if (
+        name &&
+        email &&
+        password &&
+        accessLevel &&
+        domain &&
+        password_confirmation
+      ) {
         console.log("four fields are provided");
         if (password === password_confirmation) {
           console.log("password === password_confirmation");
@@ -33,8 +46,9 @@ class UserController {
               name: name,
               email: email,
               accessLevel: accessLevel,
+              domain: domain,
               password: hashPassword,
-              score
+              score,
             });
             await doc.save();
             console.log("successfully created user");
@@ -45,13 +59,11 @@ class UserController {
               process.env.JWT_SECRET_KEY,
               { expiresIn: "5d" }
             );
-            res
-              .status(201)
-              .send({
-                status: "success",
-                message: "Registration Successfull",
-                token: token,
-              });
+            res.status(201).send({
+              status: "success",
+              message: "Registration Successfull",
+              token: token,
+            });
           } catch (error) {
             console.log(error);
             res.send({ status: "failed", message: "unable to register" });
@@ -70,6 +82,7 @@ class UserController {
     }
   };
 
+  // USER LOGIN
   static userLogin = async (req, res) => {
     try {
       const { email, password } = req.body;
@@ -117,6 +130,7 @@ class UserController {
     }
   };
 
+  // CHANGE USER PASSWORD
   static changeUserPassword = async (req, res) => {
     const { password, password_confirmation } = req.body;
     if (password && password_confirmation) {
@@ -142,10 +156,12 @@ class UserController {
     }
   };
 
+  // LOGGED USER
   static loggedUser = async (req, res) => {
     res.send({ user: req.user });
   };
 
+  // SEND USER PASSWORD RESET EMAIL
   static sendUserPasswordResetEmail = async (req, res) => {
     const { email } = req.body;
 
@@ -178,6 +194,7 @@ class UserController {
     }
   };
 
+  // USER PASSWORD RESET
   static userPasswordReset = async (req, res) => {
     const { password, password_confirmation } = req.body;
     const { id, token } = req.params;
@@ -211,38 +228,77 @@ class UserController {
     }
   };
 
-
-  static updateUserInfo = async (req , res)=>{
+  // UPDATE USER Score
+  static updateUserInfo = async (req, res) => {
     const { id, totalScore } = req.body;
     // console.log('User ID : ',id);
     // console.log('totalScore : ',totalScore);
     const user = await UserModel.findById(id);
     // console.log("user is : " , user);
-    try{
-        await UserModel.findByIdAndUpdate(user._id, {$set : {score : totalScore}});
-        res.send({ status: "success", message: "successfullt updated user's score" });
-        
+    try {
+      await UserModel.findByIdAndUpdate(user._id, {
+        $set: { score: totalScore },
+      });
+      res.send({
+        status: "success",
+        message: "successfullt updated user's score",
+      });
+    } catch (error) {
+      res.send({ status: "failed", message: "Not able to update the score" });
     }
-    catch(error){
-        res.send({ status: "failed", message: "Not able to update the score" });
-        
-    }       
+  };
 
+  // USER PROFILE UPDATE
+  static userProfileUpdate = async (req, res) => {
+    const { id, displayName, domain, country, bio } = req.body;
+    console.log(req.body);
 
-  }
+    try {
+        UserModel.findByIdAndUpdate(
+        id,
+        {
+          displayName: displayName,
+          domain: domain,
+          country: country,
+          bio: bio,
+        },
+        (err, doc) => {
+          if (err) {
+            console.log(err);
+            res.send({ status: "failed", message: "Profile not updated" });
+          } else {
+            console.log();
+            console.log(doc);
+            res.send({ status: "success", message: "Profile updated Successfully" });
+          }
+        }
+      );
+      // console.log("Successfully Updated : ", result);
 
+      // console.log("Not able to update : ",error);
+      // res.send({ status: "failed", message: "User Does not exists" });
+    } catch (error) {
+      console.log(error);
+      res.send({
+        status: "failed",
+        message: "Not able to update the user Profile",
+      });
+    }
+  };
+
+  // GET ALL USERS DETAILS
   static getAllUsers = async (req, res) => {
     try {
       const result = await UserModel.find();
       res.send({
         status: "success",
         message: "All users are fetched",
-        users : result
+        users: result,
       });
-    //   console.log(result);
+      //   console.log(result);
     } catch (eroor) {
-    //   console.log(error);
-      res.send({"status" : "failed", "message": "Not able to fetch the data"})
+      //   console.log(error);
+      res.send({ status: "failed", message: "Not able to fetch the data" });
     }
   };
 }
