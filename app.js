@@ -9,7 +9,7 @@ import idRoutes from './routes/incemenet.js'
 
 
 const app = express()
-const port = process.env.PORT
+const port = process.env.PORT || 8080
 const DATABASE_URL = process.env.DATABASE_URL
 
 // CORS Policy
